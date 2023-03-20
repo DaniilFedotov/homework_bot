@@ -53,8 +53,7 @@ def send_message(bot, message):
 
 
 def get_api_answer(timestamp):
-    """
-    Делает запрос к эндпоинту и возвращает ответ
+    """Делает запрос к эндпоинту и возвращает ответ
     в случае наличия обновления.
     """
     payload = {'from_date': timestamp}
