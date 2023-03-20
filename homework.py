@@ -54,33 +54,46 @@ def send_message(bot, message):
 
 def get_api_answer(timestamp):
     """Делает запрос к эндпоинту и возвращает ответ в случае обновления."""
-    payload = {'from_date': timestamp}
-    homeworks = requests.get(ENDPOINT, headers=HEADERS, params=payload)
-    if homeworks.status_code != HTTPStatus.OK:
-        logger.error('Эндпоинт недоступен')
-        return None
-    if list(homeworks.json().keys()) != EXPECTED_KEYS:
-        logger.error('В ответе API отсутствуют ожидаемые ключи')
-        return None
-    return homeworks.json()
+    try:
+        payload = {'from_date': timestamp}
+        homeworks = requests.get(ENDPOINT, headers=HEADERS, params=payload)
+        if homeworks.status_code != HTTPStatus.OK:
+            logger.error('Эндпоинт недоступен')
+            raise Exception('Эдпоинт недоступен')
+        return homeworks.json()
+    except requests.RequestException as error:
+        logger.error(f'Ошибка: {error}')
+    except Exception as error:
+        logger.error(f'Ошибка при подключении к эдпоинту: {error}')
+        raise
 
 
 def check_response(response):
     """Проверяет ответ API на соответствие документации."""
-    if response is dict:
-        return response.get('homeworks')
-    return None
+    if not isinstance(response, dict):
+        raise TypeError('Ответ API не соответствует документации')
+    elif 'homeworks' not in response:
+        raise KeyError('Ошибка: отсутствует ключ homeworks')
+    elif not isinstance(response['homeworks'], list):
+        raise TypeError('Неверный тип данных для homeworks')
+    return response.get('homeworks')
 
 
 def parse_status(homework):
     """Извлекает из информации о конкретной домашней работе ее статус."""
-    homework_name = homework['homework_name']
-    homework_status = homework['status']
-    if homework_status not in HOMEWORK_VERDICTS:
-        logger.error(f'Неожиданный статус домашней работы: {homework_status}')
-        return None
-    verdict = HOMEWORK_VERDICTS[homework_status]
-    return f'Изменился статус проверки работы "{homework_name}". {verdict}'
+    try:
+        homework_name = homework['homework_name']
+        homework_status = homework['status']
+        if homework_status not in HOMEWORK_VERDICTS:
+            logger.error(f'Неожиданный статус домашней работы: {homework_status}')
+            raise Exception('Неожиданный статус домашней работы: {homework_status}')
+        verdict = HOMEWORK_VERDICTS[homework_status]
+        return f'Изменился статус проверки работы "{homework_name}". {verdict}'
+    except KeyError('Ошибка: Отсутствует ключ homework_name'):
+        logger.error('Ошибка: Отсутствует ключ homework_name')
+    except Exception as error:
+        logger.error(f'Ошибка при извлечении информации о работе: {error}')
+        raise
 
 
 def main():
