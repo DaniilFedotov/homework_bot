@@ -85,8 +85,12 @@ def parse_status(homework):
         homework_name = homework['homework_name']
         homework_status = homework['status']
         if homework_status not in HOMEWORK_VERDICTS:
-            logger.error(f'Неожиданный статус домашней работы: {homework_status}')
-            raise Exception('Неожиданный статус домашней работы: {homework_status}')
+            logger.error(
+                f'Неожиданный статус домашней работы: {homework_status}'
+            )
+            raise Exception(
+                'Неожиданный статус домашней работы: {homework_status}'
+            )
         verdict = HOMEWORK_VERDICTS[homework_status]
         return f'Изменился статус проверки работы "{homework_name}". {verdict}'
     except KeyError('Ошибка: Отсутствует ключ homework_name'):
