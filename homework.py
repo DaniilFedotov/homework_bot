@@ -54,13 +54,16 @@ def send_message(bot, message):
 
 def get_api_answer(timestamp):
     """Делает запрос к эндпоинту и возвращает ответ в случае обновления."""
-    payload = {'from_date': timestamp}
-    homeworks = requests.get(ENDPOINT, headers=HEADERS, params=payload)
-    if homeworks.status_code != HTTPStatus.OK:
-        logger.error('Эндпоинт недоступен')
-    if list(homeworks.json().keys()) != EXPECTED_KEYS:
-        logger.error('В ответе API отсутствуют ожидаемые ключи')
-    return homeworks.json()
+    try:
+        payload = {'from_date': timestamp}
+        homeworks = requests.get(ENDPOINT, headers=HEADERS, params=payload)
+        if homeworks.status_code != HTTPStatus.OK:
+            logger.error('Эндпоинт недоступен')
+            return None
+        if list(homeworks.json().keys()) != EXPECTED_KEYS:
+            logger.error('В ответе API отсутствуют ожидаемые ключи')
+            return None
+        return homeworks.json()
 
 
 def check_response(response):
