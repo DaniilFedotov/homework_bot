@@ -53,9 +53,7 @@ def send_message(bot, message):
 
 
 def get_api_answer(timestamp):
-    """Делает запрос к эндпоинту и возвращает ответ
-    в случае наличия обновления.
-    """
+    """Делает запрос к эндпоинту и возвращает ответ в случае обновления."""
     payload = {'from_date': timestamp}
     homeworks = requests.get(ENDPOINT, headers=HEADERS, params=payload)
     if homeworks.status_code != HTTPStatus.OK:
